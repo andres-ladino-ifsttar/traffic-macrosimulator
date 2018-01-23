@@ -1,0 +1,376 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>ITS Session 2: Control of large scale Traffic Networks</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-01-23"><meta name="DC.source" content="part_2_modeling_actm.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>ITS Session 2: Control of large scale Traffic Networks</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Average CTM</a></li><li><a href="#3">Parameter setup</a></li><li><a href="#5">Network object</a></li><li><a href="#9">Traffic lights setup</a></li><li><a href="#10">Simulation parameters</a></li><li><a href="#11">Simulation</a></li><li><a href="#13">Merge example</a></li></ul></div><h2>Average CTM<a name="1"></a></h2><p>Let us recall the model.</p><p><img vspace="5" hspace="5" src="actm.png" alt=""> </p><h2>Parameter setup<a name="3"></a></h2><p>Setting up the parameters</p><pre class="codeinput">Ts                      = 15;               <span class="comment">% sampling time</span>
+Tc                      = 90;               <span class="comment">% cycle time of traffic lights</span>
+T                       = Tc/Ts;            <span class="comment">% cycle time/ sampling time</span>
+Li                  = 500;              <span class="comment">% cell length [m]</span>
+maxSpeed                = 50/3.6;           <span class="comment">% free flow speed [m/s]</span>
+maxDensity              = 0.125;            <span class="comment">% maximum density [veh/m]</span>
+maxFlow                 = 0.55;             <span class="comment">% maximum flow [veh/s]</span>
+rhoC                    = maxFlow/maxSpeed; <span class="comment">% critical density</span>
+congSpeed               = abs(maxFlow/(rhoC - maxDensity));   <span class="comment">% w</span>
+</pre><p>The main important change is the parameter:</p><pre class="codeinput">type                    = <span class="string">'RoadAvgFifoCTM'</span>; <span class="comment">% model type</span>
+</pre><h2>Network object<a name="5"></a></h2><pre class="codeinput">netNoControlAvg         = Net(Ts, T, (1:nRoads)');
+</pre><p>Assign the incidence matrix to the object</p><pre class="codeinput">netNoControlAvg.iM      = incMat;
+</pre><p>Assign the adjacency matrix to the object</p><pre class="codeinput">netNoControlAvg.turnings= adjMat;
+</pre><p>Set parameters to the network</p><pre class="codeinput">netNoControlAvg.initialize(Li, maxSpeed, congSpeed, maxDensity, <span class="keyword">...</span>
+                        maxFlow, rhoC, type)
+netNoControlAvg
+</pre><pre class="codeoutput">
+netNoControlAvg = 
+
+  Net with properties:
+
+              iM: [40x16 double]
+              rA: []
+              lM: [40x1 double]
+        turnings: [40x40 double]
+      sampleTime: 15
+          period: 6
+           roads: [1x40 RoadAvgFifoCTM]
+          lights: [1x40 Light]
+    isControlled: 1
+
+</pre><h2>Traffic lights setup<a name="9"></a></h2><p>Setup the flag so the network is run under manual control</p><pre class="codeinput">netNoControlAvg.isControlled= 0;
+setTrafficLightsManhattanMultipleIO(netNoControlAvg,nCols);
+netNoControlAvg.lights(1).values
+<span class="comment">% Let's check the traffic lights. For a particular</span>
+<span class="comment">% intersection:</span>
+upstream                = find(incMat(:,1)==1);
+figure(1),clf
+stem(1:T,netNoControlAvg.lights(upstream(1)).values,<span class="string">'b'</span>), hold <span class="string">on</span>,
+plot(1:T,repmat(mean(netNoControlAvg.lights(upstream(1)).values),1,T),<span class="string">'b.'</span>), hold <span class="string">on</span>,
+stem(1:T,netNoControlAvg.lights(upstream(2)).values,<span class="string">'r'</span>), grid <span class="string">on</span>,
+plot(1:T,repmat(mean(netNoControlAvg.lights(upstream(2)).values),1,T),<span class="string">'r--'</span>), hold <span class="string">on</span>,
+lgn                     = legend(<span class="string">'$u_1$'</span>,<span class="string">'$u_1$'</span>,<span class="string">'$\bar{u}_1$'</span>,<span class="string">'$\bar{u}_5$'</span>);
+set(lgn,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>);
+ylim([0,2])
+xlabel(<span class="string">'Discrete time [t]'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+ylabel(<span class="string">'$u_i(t)$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+title(<span class="string">'Traffic lights intersection $1$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+</pre><pre class="codeoutput">
+ans =
+
+     1     1     0     0     0     0
+
+</pre><img vspace="5" hspace="5" src="part_2_modeling_actm_01.png" alt=""> <h2>Simulation parameters<a name="10"></a></h2><p>Setup for simulation parameters:</p><pre class="codeinput">nCycles                 = 50;
+time                    = [1 T*nCycles]; <span class="comment">% number of iterations</span>
+Sout                    = maxFlow*ones(nRoads,time(end));
+<span class="comment">%</span>
+burstValue              = 0.4;
+t0                      = time(end)*0.1;
+tf                      = time(end)*0.8;
+Din                     = inputDemandManhattan(netNoControlAvg, burstValue,<span class="keyword">...</span>
+                                               t0, tf, time(end));
+<span class="comment">%</span>
+</pre><h2>Simulation<a name="11"></a></h2><p>Use the method <i>simul</i> in the object <i>Net</i> to simulate the system.</p><pre class="codeinput">[totDensitySCTM,~,<span class="keyword">...</span>
+ totLightsSCTM,~,~]     = netNoControlAvg.simul(time,zeros(1,nRoads),Din,Sout);
+</pre><pre class="codeinput">figure(3),clf
+imagesc(time(1):time(end),1:nRoads,totDensitySCTM)
+map                     = retrieve_color_heatmap;
+colormap(flipud(map));
+colormap(jet)
+colorbar
+xlabel(<span class="string">'Samples [k]'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+ylabel(<span class="string">'Road ID'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+title(<span class="string">'Density  $\frac{veh}{m}$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+</pre><img vspace="5" hspace="5" src="part_2_modeling_actm_02.png" alt=""> <h2>Merge example<a name="13"></a></h2><p>Network setup</p><pre class="codeinput">incMatrixMerge          = [1;1;-1];
+adjMatrixMerge          = [0 0 1;0 0 1;0 0 0];
+nRoadsMerge             = size(incMatrixMerge,1);
+</pre><p>Parameters</p><pre class="codeinput">Ts                      = 15;               <span class="comment">% sampling time</span>
+Tc                      = 90;               <span class="comment">% cycle time of traffic lights</span>
+T                       = Tc/Ts;            <span class="comment">% cycle time/ sampling time</span>
+Li                      = 250;              <span class="comment">% cell length [m]</span>
+maxSpeed                = 50/3.6;           <span class="comment">% free flow speed [m/s]</span>
+maxDensity              = 0.125;            <span class="comment">% maximum density [veh/m]</span>
+maxFlow                 = 0.55;             <span class="comment">% maximum flow [veh/s]</span>
+rhoC                    = maxFlow/maxSpeed; <span class="comment">% critical density</span>
+congSpeed               = abs(maxFlow/(rhoC - maxDensity));   <span class="comment">% w</span>
+type                    = <span class="string">'RoadAvgFifoCTM'</span>;<span class="comment">% model type</span>
+</pre><p>Network inizialization</p><pre class="codeinput">netMergeAvg             = Net(Ts, T, (1:nRoadsMerge)');
+</pre><p>Assign the incidence matrix to the object</p><pre class="codeinput">netMergeAvg.iM          = incMatrixMerge;
+</pre><p>Assign the adjacency matrix to the object</p><pre class="codeinput">netMergeAvg.turnings    = adjMatrixMerge;
+</pre><p>Set parameters to the network</p><pre class="codeinput">netMergeAvg.initialize(Li, maxSpeed, congSpeed, maxDensity, <span class="keyword">...</span>
+                        maxFlow, rhoC, type)
+netMergeAvg
+</pre><pre class="codeoutput">
+netMergeAvg = 
+
+  Net with properties:
+
+              iM: [3x1 double]
+              rA: []
+              lM: [3x1 double]
+        turnings: [3x3 double]
+      sampleTime: 15
+          period: 6
+           roads: [1x3 RoadAvgFifoCTM]
+          lights: [1x3 Light]
+    isControlled: 1
+
+</pre><pre class="codeinput">netMergeAvg.isControlled        = 0;
+netMergeAvg.lights(1).values    = [ones(1,1),zeros(1,5)];
+netMergeAvg.lights(2).values    = [zeros(1,4),ones(1,2)];
+netMergeAvg.lights(3).values    = [ones(1,6)];
+</pre><p>Setup for simulation parameters:</p><pre class="codeinput">nCycles                         = 50;
+time                            = [1 T*nCycles]; <span class="comment">% number of iterations</span>
+SoutMerge                       = maxFlow*ones(nRoadsMerge,time(end));
+DinMerge                        = [];
+DinMerge(1,:)                   = 300*ones(1,time(end));
+DinMerge(2,:)                   = 700*ones(1,time(end));
+DinMerge(3,:)                   = zeros(1,time(end));
+[totDensityMergeAvg,~,<span class="keyword">...</span>
+ totLightsMergeAvg,~,~]         = netMergeAvg.simul(time,zeros(1,nRoadsMerge),<span class="keyword">...</span>
+                                             DinMerge,SoutMerge);
+</pre><p>Plot the density</p><pre class="codeinput">figure(4),clf
+colors                          = colormap(lines);
+p1                              = plot(1:100,totDensityMergeAvg(:,1:100)');
+p1(1).Color                     = colors(4,:);
+p1(2).Color                     = colors(5,:);
+p1(3).Color                     = colors(6,:);
+grid <span class="string">on</span>
+xlabel(<span class="string">'Samples [k]'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+ylabel(<span class="string">'$\rho_i$ veh/km'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+</pre><img vspace="5" hspace="5" src="part_2_modeling_actm_03.png" alt=""> <p>Execute only if the <i>S-CTM</i> example has been computed</p><pre class="codeinput">hold <span class="string">on</span>
+p2                              = plot(1:100,totDensityMerge(:,1:100)');
+<span class="keyword">for</span> i = 1:3
+    p2(i).Color                 = colors(i,:);
+    p2(i).LineWidth             = 1.5;
+    p2(i).LineStyle             = <span class="string">':'</span>;
+<span class="keyword">end</span>
+lgn                             = legend(<span class="string">'$\rho_1$'</span>,<span class="string">'$\rho_2$'</span>,<span class="string">'$\rho_3$'</span>,<span class="keyword">...</span>
+                                     <span class="string">'$\bar{\rho}_1$'</span>,<span class="string">'$\bar{\rho}_2$'</span>,<span class="keyword">...</span>
+                                     <span class="string">'$\bar{\rho}_3$'</span>);
+set(lgn,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>);
+</pre><img vspace="5" hspace="5" src="part_2_modeling_actm_04.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% ITS Session 2: Control of large scale Traffic Networks 
+%
+%% Average CTM 
+% 
+% Let us recall the model.
+%%
+% 
+% <<actm.png>>
+%
+%% Parameter setup
+%
+% Setting up the parameters
+Ts                      = 15;               % sampling time
+Tc                      = 90;               % cycle time of traffic lights 
+T                       = Tc/Ts;            % cycle time/ sampling time
+Li                  = 500;              % cell length [m]
+maxSpeed                = 50/3.6;           % free flow speed [m/s]
+maxDensity              = 0.125;            % maximum density [veh/m]
+maxFlow                 = 0.55;             % maximum flow [veh/s]
+rhoC                    = maxFlow/maxSpeed; % critical density
+congSpeed               = abs(maxFlow/(rhoC - maxDensity));   % w
+%% 
+% The main important change is the parameter: 
+type                    = 'RoadAvgFifoCTM'; % model type
+%% Network object 
+%
+% 
+netNoControlAvg         = Net(Ts, T, (1:nRoads)');
+%%
+% Assign the incidence matrix to the object
+netNoControlAvg.iM      = incMat;
+%%
+% Assign the adjacency matrix to the object
+netNoControlAvg.turnings= adjMat;
+%%
+% Set parameters to the network 
+netNoControlAvg.initialize(Li, maxSpeed, congSpeed, maxDensity, ... 
+                        maxFlow, rhoC, type)
+netNoControlAvg
+%% Traffic lights setup
+%
+% Setup the flag so the network is run under manual control 
+netNoControlAvg.isControlled= 0;
+setTrafficLightsManhattanMultipleIO(netNoControlAvg,nCols); 
+netNoControlAvg.lights(1).values
+% Let's check the traffic lights. For a particular
+% intersection:
+upstream                = find(incMat(:,1)==1);
+figure(1),clf
+stem(1:T,netNoControlAvg.lights(upstream(1)).values,'b'), hold on, 
+plot(1:T,repmat(mean(netNoControlAvg.lights(upstream(1)).values),1,T),'b.'), hold on, 
+stem(1:T,netNoControlAvg.lights(upstream(2)).values,'r'), grid on,
+plot(1:T,repmat(mean(netNoControlAvg.lights(upstream(2)).values),1,T),'rREPLACE_WITH_DASH_DASH'), hold on, 
+lgn                     = legend('$u_1$','$u_1$','$\bar{u}_1$','$\bar{u}_5$');
+set(lgn,'interpreter','latex');
+ylim([0,2])
+xlabel('Discrete time [t]','interpreter','latex')
+ylabel('$u_i(t)$','interpreter','latex')
+title('Traffic lights intersection $1$','interpreter','latex')
+%% Simulation parameters
+%
+% Setup for simulation parameters: 
+nCycles                 = 50;
+time                    = [1 T*nCycles]; % number of iterations
+Sout                    = maxFlow*ones(nRoads,time(end));
+%
+burstValue              = 0.4; 
+t0                      = time(end)*0.1; 
+tf                      = time(end)*0.8;
+Din                     = inputDemandManhattan(netNoControlAvg, burstValue,...
+                                               t0, tf, time(end));
+% 
+%% Simulation  
+%
+% Use the method _simul_ in the object _Net_ to simulate the system.
+%
+[totDensitySCTM,~,...
+ totLightsSCTM,~,~]     = netNoControlAvg.simul(time,zeros(1,nRoads),Din,Sout);
+%%
+%
+figure(3),clf
+imagesc(time(1):time(end),1:nRoads,totDensitySCTM)
+map                     = retrieve_color_heatmap;
+colormap(flipud(map));
+colormap(jet)
+colorbar
+xlabel('Samples [k]','interpreter','latex')
+ylabel('Road ID','interpreter','latex')
+title('Density  $\frac{veh}{m}$','interpreter','latex')
+%% Merge example 
+% Network setup 
+incMatrixMerge          = [1;1;-1];
+adjMatrixMerge          = [0 0 1;0 0 1;0 0 0];
+nRoadsMerge             = size(incMatrixMerge,1);
+%%
+% Parameters
+Ts                      = 15;               % sampling time
+Tc                      = 90;               % cycle time of traffic lights 
+T                       = Tc/Ts;            % cycle time/ sampling time
+Li                      = 250;              % cell length [m]
+maxSpeed                = 50/3.6;           % free flow speed [m/s]
+maxDensity              = 0.125;            % maximum density [veh/m]
+maxFlow                 = 0.55;             % maximum flow [veh/s]
+rhoC                    = maxFlow/maxSpeed; % critical density
+congSpeed               = abs(maxFlow/(rhoC - maxDensity));   % w
+type                    = 'RoadAvgFifoCTM';% model type
+%% 
+% Network inizialization
+netMergeAvg             = Net(Ts, T, (1:nRoadsMerge)');
+%%
+% Assign the incidence matrix to the object
+netMergeAvg.iM          = incMatrixMerge;
+%%
+% Assign the adjacency matrix to the object
+netMergeAvg.turnings    = adjMatrixMerge;
+%%
+% Set parameters to the network 
+netMergeAvg.initialize(Li, maxSpeed, congSpeed, maxDensity, ... 
+                        maxFlow, rhoC, type)
+netMergeAvg
+%%
+netMergeAvg.isControlled        = 0;
+netMergeAvg.lights(1).values    = [ones(1,1),zeros(1,5)];
+netMergeAvg.lights(2).values    = [zeros(1,4),ones(1,2)];
+netMergeAvg.lights(3).values    = [ones(1,6)];
+%%
+% Setup for simulation parameters: 
+nCycles                         = 50;
+time                            = [1 T*nCycles]; % number of iterations
+SoutMerge                       = maxFlow*ones(nRoadsMerge,time(end));
+DinMerge                        = [];
+DinMerge(1,:)                   = 300*ones(1,time(end));
+DinMerge(2,:)                   = 700*ones(1,time(end));
+DinMerge(3,:)                   = zeros(1,time(end));
+[totDensityMergeAvg,~,...
+ totLightsMergeAvg,~,~]         = netMergeAvg.simul(time,zeros(1,nRoadsMerge),...
+                                             DinMerge,SoutMerge);
+%%
+% Plot the density 
+figure(4),clf
+colors                          = colormap(lines);
+p1                              = plot(1:100,totDensityMergeAvg(:,1:100)');
+p1(1).Color                     = colors(4,:);
+p1(2).Color                     = colors(5,:);
+p1(3).Color                     = colors(6,:);
+grid on
+xlabel('Samples [k]','interpreter','latex')
+ylabel('$\rho_i$ veh/km','interpreter','latex')
+%%
+% Execute only if the _S-CTM_ example has been computed
+hold on 
+p2                              = plot(1:100,totDensityMerge(:,1:100)');
+for i = 1:3
+    p2(i).Color                 = colors(i,:);
+    p2(i).LineWidth             = 1.5;
+    p2(i).LineStyle             = ':';
+end
+lgn                             = legend('$\rho_1$','$\rho_2$','$\rho_3$',...
+                                     '$\bar{\rho}_1$','$\bar{\rho}_2$',...
+                                     '$\bar{\rho}_3$');
+set(lgn,'interpreter','latex');
+
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,164 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>ITS Session 2: Control of large scale Traffic Networks</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-01-23"><meta name="DC.source" content="main.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>ITS Session 2: Control of large scale Traffic Networks</h1><!--introduction--><p>The course is oriented to introduce the models presented in the first session.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Previous information</a></li><li><a href="#3">Session content</a></li><li><a href="#9">About this tool</a></li><li><a href="#12">Requirements</a></li><li><a href="#13">Examples</a></li><li><a href="#17">Contributors</a></li></ul></div><h2>Previous information<a name="1"></a></h2><p>This session is based on contents on <i>Control of large scale urban traffic networks</i>. Check slides at:</p><div><ul><li><a href="http://bit.ly/ITS-Control-Session-1">Slides Session 1</a></li></ul></div><h2>Session content<a name="3"></a></h2><p>The session is divided in multiple areas. Click on each link to get deeper information on each one of the subjects:</p><p>1. <a href="part_0_setup.html">Setup</a>: Initial steps before starting.</p><p>2. <a href="part_1_modeling_sctm.html">Modeling S-CTM</a>: Signalized cell transmission model (with manual set lights)</p><p>3. <a href="part_2_modeling_actm.html">Modeling Avg-CTM</a>: Averaged cell transmission model (with manual set lights)</p><p>3. <a href="part_3_control_centralized.html">Control Centralized Algorithm</a>: Quadratic programming one step ahead controller</p><h2>About this tool<a name="9"></a></h2><p><i>By P. Grandinetti</i></p><p>This is a MatLab package that can be used to create and simulate road networks objects described by a macroscopic dynamics. The code comes entirely from the legacy code developed during the Ph.D. of the author; all technical details can be checked in the Ph.D. <a href="bit.ly/TrafficControl-PhD">Thesis available</a>.</p><p><a href="https://en.wikipedia.org/wiki/Reproducibility#Reproducible_research">Reproducibility</a> is an important feature, sadly often neglected in published works. When using this repository, other than checking the above mentioned thesis for a deeper insight, we provide two fully reproducibile examples (with images generation), to ease the understanding of the code. Thus, in the folder `reproducible example` you will find</p><div><ul><li>A runnable script to simulate one road network and instructions about how to set up your experiments,</li><li>A runnable script to simulate two different networks, one with optimized traffic lights and one without; the script produces several figures in order to compare the systems' performance.</li></ul></div><p>The above mentioned Ph.D. work was about <i>Control of large scale traffic networks</i>. Differently said, our objective was not just to simulate dynamic networks, but also to design algorithms to improve the behavior, for instance by reducing the congestions; the developed controllers are stored in the subfolder <tt>controllers</tt>.</p><h2>Requirements<a name="12"></a></h2><div><ul><li>Any recent version of MatLab should work</li><li><a href="https://yalmip.github.io/">YALMIP</a> &amp; Some good numerical solvers: most of the algorithms are based on convex optimization, for which you can use built-in solvers, or external solvers like cvx, mosek, etc. Other controllers are instead based on integer optimization, therefore an appropriate solver is needed (here again, mosek will work).</li></ul></div><h2>Examples<a name="13"></a></h2><p>When running the <tt>networkComparisons</tt> script, you will see the following two figures (among others)</p><p><img vspace="5" hspace="5" src="controlled.png" alt=""> </p><p><img vspace="5" hspace="5" src="uncontrolled.png" alt=""> </p><p>The figures show how the density of vehicles in every road (with roads indexes from 1 to 40 in the y-axis) evolves along the entire simulation time (x-axis). By comparing the two, it is possible to see the the controller spreads out the severe congestions (that appear in the uncontrolled case) by creating a more homogeneous distribution of vehicles all over the network.</p><h2>Contributors<a name="17"></a></h2><p>The code has been entirely written by Pietro Grandinetti. Adaptation of this tool for the ITS Session has been done by Andres Ladino.</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% ITS Session 2: Control of large scale Traffic Networks 
+%
+% The course is oriented to introduce the models presented in the first
+% session. 
+%% Previous information 
+% 
+% This session is based on contents on _Control of large scale urban 
+% traffic networks_. Check slides at: 
+%%
+% *  <http://bit.ly/ITS-Control-Session-1 Slides Session 1>
+%% Session content 
+% 
+% The session is divided in multiple areas. Click on each link to get
+% deeper information on each one of the subjects:
+%%
+% 1. <part_0_setup.html Setup>: Initial steps before starting.
+%%
+% 2. <part_1_modeling_sctm.html Modeling S-CTM>: Signalized cell
+% transmission model (with manual set lights) 
+%%
+% 3. <part_2_modeling_actm.html Modeling Avg-CTM>: Averaged cell
+% transmission model (with manual set lights) 
+%%
+% 3. <part_3_control_centralized.html Control Centralized Algorithm>:
+% Quadratic programming one step ahead controller
+%% 
+%% About this tool 
+% 
+% _By P. Grandinetti_
+% 
+% This is a MatLab package that can be used to create and simulate road 
+% networks objects described by a macroscopic dynamics. The code comes 
+% entirely from the legacy code developed during the Ph.D. of the author; 
+% all technical details can be checked in the Ph.D.
+% <bit.ly/TrafficControl-PhD Thesis available>.
+%%
+% <https://en.wikipedia.org/wiki/Reproducibility#Reproducible_research 
+% Reproducibility> is an important feature, sadly often neglected in 
+% published works. When using this repository, other than checking the 
+% above mentioned thesis for a deeper insight, we provide two fully 
+% reproducibile examples (with images generation), to ease the 
+% understanding of the code. Thus, in the folder `reproducible example` 
+% you will find
+%
+% * A runnable script to simulate one road network and instructions 
+% about how to set up your experiments,
+% * A runnable script to simulate two different networks, one with 
+% optimized traffic lights and one without; the script produces several 
+% figures in order to compare the systems' performance.
+%% 
+% The above mentioned Ph.D. work was about _Control of large scale traffic
+% networks_. Differently said, our objective was not just to simulate 
+% dynamic networks, but also to design algorithms to improve the behavior, 
+% for instance by reducing the congestions; the developed controllers are 
+% stored in the subfolder |controllers|.
+%% Requirements
+% 
+% * Any recent version of MatLab should work
+% * <https://yalmip.github.io/ YALMIP>
+% & Some good numerical solvers: most of the algorithms are based on convex 
+% optimization, for which you can use built-in solvers, or external solvers 
+% like cvx, mosek, etc. Other controllers are instead based on integer 
+% optimization, therefore an appropriate solver is needed (here again, 
+% mosek will work).
+%% Examples
+%
+% When running the |networkComparisons| script, you will see the following 
+% two figures (among others)
+%%
+% 
+% <<controlled.png>>
+% 
+%%
+% 
+% <<uncontrolled.png>>
+% 
+%%
+% The figures show how the density of vehicles in every road 
+% (with roads indexes from 1 to 40 in the y-axis) evolves along the entire 
+% simulation time (x-axis). By comparing the two, it is possible to see the 
+% the controller spreads out the severe congestions (that appear in the 
+% uncontrolled case) by creating a more homogeneous distribution of vehicles 
+% all over the network.
+
+%% Contributors
+%
+% The code has been entirely written by Pietro Grandinetti. Adaptation of
+% this tool for the ITS Session has been done by Andres Ladino.
+
+
+
+
+##### SOURCE END #####
+--></body></html>

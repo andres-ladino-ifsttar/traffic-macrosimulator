@@ -212,7 +212,7 @@ classdef Net < handle
         function m = getIncidenceMatrix(self) % nodes by nodes (= intersections)
             m = zeros(size(self.iM,2),size(self.iM,2));
             for i = 1 : size(self.iM,2)
-                keyboard
+                %keyboard
                 list = find(self.iM(:,i)== -1); % take roads exiting node i
                 for j = 1 : length(list)
                     m(i,find(self.iM(list(j),:)==1))=1;
@@ -247,8 +247,9 @@ classdef Net < handle
             end
             
             for k = time(1) : time(end)
+                %if mod(k,self.period)==0
                 disp(k)
-
+                %end
                 %% HERE call the controller to compute u[k, k+period-1] 
                  % and set the lights IF THERE IS A TRAFFIC LIGHT SCHEDULER
                 if self.isControlled==1 && mod(k,self.period)==1
@@ -299,6 +300,15 @@ classdef Net < handle
                     end
                     performanceIdx = performanceIdx + obj;
 
+                    %% Distributed QP
+%                     [n, duty, LightsValues] = ...
+%                         distributedQP(self, Din(:,k:k+self.period-1), Sout(:,k:k+self.period-1) )
+%                     for i = 1 : size(self.lM, 1)
+%                         self.lights(i).values = LightsValues(i,:);
+%                         totLights(i,k:k+self.period-1) = self.lights(i).values; 
+%                     end
+%                     performanceIdx = performanceIdx + obj;
+                    
                 end
                 
                 fOut = zeros(netSize,1);

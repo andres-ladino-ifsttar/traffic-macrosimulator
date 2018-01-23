@@ -1,0 +1,459 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>ITS Session 2: Control of large scale Traffic Networks</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-01-23"><meta name="DC.source" content="part_1_modeling_sctm.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>ITS Session 2: Control of large scale Traffic Networks</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Signalized CTM</a></li><li><a href="#5">Network construction</a></li><li><a href="#15">Parameter setup</a></li><li><a href="#16">Network object</a></li><li><a href="#20">Traffic lights setup</a></li><li><a href="#22">Simulation parameters</a></li><li><a href="#25">Simulation</a></li><li><a href="#27">Merge example</a></li></ul></div><h2>Signalized CTM<a name="1"></a></h2><p>Let us recall the model.</p><p><img vspace="5" hspace="5" src="sctm.png" alt=""> </p><p>In the model, the notation corresponds to:</p><p><img vspace="5" hspace="5" src="table-param.png" alt=""> </p><h2>Network construction<a name="5"></a></h2><p>In order to setup the network it is first required to indicate the network to topology. Network are characterized by a set of nodes (Roads) <img src="part_1_modeling_sctm_eq02743762246429591096.png" alt="$|\mathcal{N}| = n$"> a set of edges <img src="part_1_modeling_sctm_eq13114535304987664174.png" alt="$|\mathcal{M}| = m$">. This description of the network can be done via an incidence matrix <img src="part_1_modeling_sctm_eq05147331747641807187.png" alt="$A$">, which represents a relationship between nodes:</p><p>Let us consider a simple intersection. We caracterize the graph in two ways:</p><p><img vspace="5" hspace="5" src="graph-intersection.png" alt=""> </p><p><b>1. Adjacency matrix</b></p><p>It is a matrix with elements:</p><div><ul><li><img src="part_1_modeling_sctm_eq10094916066666742530.png" alt="$\beta_{ij}$"> if road <img src="part_1_modeling_sctm_eq07225361342133155126.png" alt="$j$"> is immediate downstream to road <img src="part_1_modeling_sctm_eq05671228016298599287.png" alt="$i$">. (Physical connection is required)</li><li>0 otherwise</li></ul></div><p><img vspace="5" hspace="5" src="adjacency-matrix.png" alt=""> </p><p>Another information can be obtained from the road graph:</p><p><img vspace="5" hspace="5" src="graph-4roads.png" alt=""> </p><p><b>2. Incidence matrix</b></p><p>It's a matrix with elements:</p><div><ul><li>1 if intersection <img src="part_1_modeling_sctm_eq07225361342133155126.png" alt="$j$"> is downstream road <img src="part_1_modeling_sctm_eq05671228016298599287.png" alt="$i$">,</li><li>-1 if intersection <img src="part_1_modeling_sctm_eq07225361342133155126.png" alt="$j$"> is upstream road <img src="part_1_modeling_sctm_eq05671228016298599287.png" alt="$i$">,</li><li>0 otherwise</li></ul></div><p><img vspace="5" hspace="5" src="incidence-matrix.png" alt=""> </p><p>In this case the network to be designed is a matrix array of the following shape.</p><pre class="codeinput">nRows                   = 4;
+nCols                   = 4;
+[incMat, adjMat]        = buildManhattanMultipleInOut(nRows,nCols);
+nRoads                  = size(incMat,1);
+</pre><h2>Parameter setup<a name="15"></a></h2><p>Setting up the parameters</p><pre class="codeinput">Ts                      = 15;               <span class="comment">% sampling time</span>
+Tc                      = 90;               <span class="comment">% cycle time of traffic lights</span>
+T                       = Tc/Ts;            <span class="comment">% cycle time/ sampling time</span>
+Li                  = 500;              <span class="comment">% cell length [m]</span>
+maxSpeed                = 50/3.6;           <span class="comment">% free flow speed [m/s]</span>
+maxDensity              = 0.125;            <span class="comment">% maximum density [veh/m]</span>
+maxFlow                 = 0.55;             <span class="comment">% maximum flow [veh/s]</span>
+rhoC                    = maxFlow/maxSpeed; <span class="comment">% critical density</span>
+congSpeed               = abs(maxFlow/(rhoC - maxDensity));   <span class="comment">% w</span>
+type                    = <span class="string">'RoadSignFifoCTM'</span>;<span class="comment">% model type</span>
+</pre><h2>Network object<a name="16"></a></h2><pre class="codeinput">netNoControlSCTM         = Net(Ts, T, (1:nRoads)');
+</pre><p>Assign the incidence matrix to the object</p><pre class="codeinput">netNoControlSCTM.iM      = incMat;
+</pre><p>Assign the adjacency matrix to the object</p><pre class="codeinput">netNoControlSCTM.turnings= adjMat;
+</pre><p>Set parameters to the network</p><pre class="codeinput">netNoControlSCTM.initialize(Li, maxSpeed, congSpeed, maxDensity, <span class="keyword">...</span>
+                        maxFlow, rhoC, type)
+netNoControlSCTM
+</pre><pre class="codeoutput">
+netNoControlSCTM = 
+
+  Net with properties:
+
+              iM: [40x16 double]
+              rA: []
+              lM: [40x1 double]
+        turnings: [40x40 double]
+      sampleTime: 15
+          period: 6
+           roads: [1x40 RoadSignFifoCTM]
+          lights: [1x40 Light]
+    isControlled: 1
+
+</pre><h2>Traffic lights setup<a name="20"></a></h2><p>Setup the flag so the network is run under manual control</p><pre class="codeinput">netNoControlSCTM.isControlled= 0;
+setTrafficLightsManhattanMultipleIO(netNoControlSCTM,nCols);
+netNoControlSCTM.lights(1)
+</pre><pre class="codeoutput">
+ans = 
+
+  Light with properties:
+
+        id: 1
+    period: 6
+    values: [1 1 0 0 0 0]
+
+</pre><p>Let's check the complementary traffic lights. For a particular intersection:</p><pre class="codeinput">upstream                = find(incMat(:,1)==1);
+figure(1),clf
+stem(1:T,netNoControlSCTM.lights(upstream(1)).values,<span class="string">'b'</span>), hold <span class="string">on</span>,
+stem(1:T,netNoControlSCTM.lights(upstream(2)).values,<span class="string">'r'</span>), grid <span class="string">on</span>,
+lgn                     = legend(<span class="string">'$u_1$'</span>,<span class="string">'$u_5$'</span>);
+set(lgn,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>);
+ylim([0,2])
+xlabel(<span class="string">'Discrete time [t]'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+ylabel(<span class="string">'$u_i(t)$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+title(<span class="string">'Traffic lights intersection $1$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+</pre><img vspace="5" hspace="5" src="part_1_modeling_sctm_01.png" alt=""> <h2>Simulation parameters<a name="22"></a></h2><p>Setup for simulation parameters:</p><pre class="codeinput">nCycles                 = 50;
+time                    = [1 T*nCycles]; <span class="comment">% number of iterations</span>
+Sout                    = maxFlow*ones(nRoads,time(end));
+<span class="comment">%</span>
+burstValue              = 0.4;
+t0                      = time(end)*0.1;
+tf                      = time(end)*0.8;
+Din                     = inputDemandManhattan(netNoControlSCTM, burstValue,<span class="keyword">...</span>
+                                               t0, tf, time(end));
+<span class="comment">%</span>
+</pre><p>Verify the dynamic profile of demands for the system:</p><pre class="codeinput">figure(2),clf
+imagesc(1:time,1:nRoads,Din)
+xlabel(<span class="string">'Samples [k]'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+ylabel(<span class="string">'Road ID'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+title(<span class="string">'External Demand $D^{in}$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+colorbar
+</pre><img vspace="5" hspace="5" src="part_1_modeling_sctm_02.png" alt=""> <p>It can be verified that the external demands are non-zero just for the input roads in the network <img src="part_1_modeling_sctm_eq01912568208076543364.png" alt="$\mathcal{R}^{in}$"></p><pre class="codeinput">netNoControlSCTM.enteringRoads
+</pre><pre class="codeoutput">
+ans =
+
+     1
+     3
+     5
+    18
+    23
+    36
+    38
+    40
+
+</pre><h2>Simulation<a name="25"></a></h2><p>Use the method <i>simul</i> in the object <i>Net</i> to simulate the system.</p><pre class="codeinput">[totDensitySCTM,~,<span class="keyword">...</span>
+ totLightsSCTM,~,~]     = netNoControlSCTM.simul(time,zeros(1,nRoads),Din,Sout);
+</pre><pre class="codeinput">figure(3),clf
+imagesc(time(1):time(end),1:nRoads,totDensitySCTM)
+map                     = retrieve_color_heatmap;
+colormap(flipud(map));
+colormap(jet)
+colorbar
+xlabel(<span class="string">'Samples [k]'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+ylabel(<span class="string">'Road ID'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+title(<span class="string">'Density  $\frac{veh}{m}$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+</pre><img vspace="5" hspace="5" src="part_1_modeling_sctm_03.png" alt=""> <h2>Merge example<a name="27"></a></h2><p>In order to validate we are going to create a merge of two roads as in:</p><p><img vspace="5" hspace="5" src="aimsung.png" alt=""> </p><p>Network setup</p><pre class="codeinput">incMatrixMerge          = [1;1;-1];
+adjMatrixMerge          = [0 0 1;0 0 1;0 0 0];
+nRoadsMerge             = size(incMatrixMerge,1);
+</pre><p>Parameters</p><pre class="codeinput">Ts                      = 15;               <span class="comment">% sampling time</span>
+Tc                      = 90;               <span class="comment">% cycle time of traffic lights</span>
+T                       = Tc/Ts;            <span class="comment">% cycle time/ sampling time</span>
+Li                      = 250;              <span class="comment">% cell length [m]</span>
+maxSpeed                = 50/3.6;           <span class="comment">% free flow speed [m/s]</span>
+maxDensity              = 0.125;            <span class="comment">% maximum density [veh/m]</span>
+maxFlow                 = 0.55;             <span class="comment">% maximum flow [veh/s]</span>
+rhoC                    = maxFlow/maxSpeed; <span class="comment">% critical density</span>
+congSpeed               = abs(maxFlow/(rhoC - maxDensity));   <span class="comment">% w</span>
+type                    = <span class="string">'RoadSignFifoCTM'</span>;<span class="comment">% model type</span>
+</pre><p>Network inizialization</p><pre class="codeinput">netMerge                = Net(Ts, T, (1:nRoadsMerge)');
+</pre><p>Assign the incidence matrix to the object</p><pre class="codeinput">netMerge.iM             = incMatrixMerge;
+</pre><p>Assign the adjacency matrix to the object</p><pre class="codeinput">netMerge.turnings       = adjMatrixMerge;
+</pre><p>Set parameters to the network</p><pre class="codeinput">netMerge.initialize(Li, maxSpeed, congSpeed, maxDensity, <span class="keyword">...</span>
+                        maxFlow, rhoC, type)
+netMerge
+</pre><pre class="codeoutput">
+netMerge = 
+
+  Net with properties:
+
+              iM: [3x1 double]
+              rA: []
+              lM: [3x1 double]
+        turnings: [3x3 double]
+      sampleTime: 15
+          period: 6
+           roads: [1x3 RoadSignFifoCTM]
+          lights: [1x3 Light]
+    isControlled: 1
+
+</pre><pre class="codeinput">netMerge.isControlled       = 0;
+duty                        = 1/3;
+netMerge.lights(1).values   = [ones(1,1),zeros(1,5)];
+netMerge.lights(2).values   = [zeros(1,4),ones(1,2)];
+netMerge.lights(3).values   = [ones(1,6)];
+</pre><p>Setup for simulation parameters:</p><pre class="codeinput">nCycles                     = 50;
+time                        = [1 T*nCycles]; <span class="comment">% number of iterations</span>
+SoutMerge                   = maxFlow*ones(nRoadsMerge,time(end));
+DinMerge                    = [];
+DinMerge(1,:)               = 300*ones(1,time(end));
+DinMerge(2,:)               = 700*ones(1,time(end));
+DinMerge(3,:)               = zeros(1,time(end));
+[totDensityMerge,~,<span class="keyword">...</span>
+ totLightsMerge,~,~]        = netMerge.simul(time,zeros(1,nRoadsMerge),DinMerge,SoutMerge);
+</pre><p>Plot the density</p><pre class="codeinput">figure(4),clf
+plot((time(1)-1):time(end),totDensityMerge')
+grid <span class="string">on</span>
+xlabel(<span class="string">'Samples [k]'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+ylabel(<span class="string">'$\rho_i$ veh/km'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+lgn                     = legend(<span class="string">'$\rho_1$'</span>,<span class="string">'$\rho_2$'</span>,<span class="string">'$\rho_3$'</span>);
+set(lgn,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>);
+</pre><img vspace="5" hspace="5" src="part_1_modeling_sctm_04.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% ITS Session 2: Control of large scale Traffic Networks 
+%
+%% Signalized CTM 
+% 
+% Let us recall the model.
+%%
+% 
+% <<sctm.png>>
+%
+%% 
+% In the model, the notation corresponds to: 
+%%
+% <<table-param.png>>
+%
+%% Network construction 
+% 
+% In order to setup the network it is first required to indicate the
+% network to topology. Network are characterized by a set of nodes (Roads) 
+% $|\mathcal{N}| = n$ a set of edges $|\mathcal{M}| = m$. This description 
+% of the network can be done via an incidence matrix $A$, which represents a 
+% relationship between nodes:
+%
+% Let us consider a simple intersection. We caracterize the graph in two 
+% ways: 
+% 
+%%
+% 
+% <<graph-intersection.png>>
+% 
+%% 
+% *1. Adjacency matrix* 
+%%
+% It is a matrix with elements:
+%
+% * $\beta_{ij}$ if road $j$ is immediate downstream to road $i$. (Physical
+% connection is required)
+% * 0 otherwise
+%%
+% 
+% <<adjacency-matrix.png>>
+% 
+%%
+% Another information can be obtained from the road graph:
+%%
+% 
+% <<graph-4roads.png>>
+% 
+%% 
+% *2. Incidence matrix*
+% 
+% It's a matrix with elements:
+%
+% *  1 if intersection $j$ is downstream road $i$,
+% * -1 if intersection $j$ is upstream road $i$,
+% * 0 otherwise
+%%
+% 
+% <<incidence-matrix.png>>
+%            
+% In this case the network to be designed is a matrix array of the 
+% following shape. 
+%% 
+% 
+nRows                   = 4; 
+nCols                   = 4;
+[incMat, adjMat]        = buildManhattanMultipleInOut(nRows,nCols);
+nRoads                  = size(incMat,1);
+%% Parameter setup
+%
+% Setting up the parameters
+
+Ts                      = 15;               % sampling time
+Tc                      = 90;               % cycle time of traffic lights 
+T                       = Tc/Ts;            % cycle time/ sampling time
+Li                  = 500;              % cell length [m]
+maxSpeed                = 50/3.6;           % free flow speed [m/s]
+maxDensity              = 0.125;            % maximum density [veh/m]
+maxFlow                 = 0.55;             % maximum flow [veh/s]
+rhoC                    = maxFlow/maxSpeed; % critical density
+congSpeed               = abs(maxFlow/(rhoC - maxDensity));   % w
+type                    = 'RoadSignFifoCTM';% model type
+%% Network object 
+%
+% 
+netNoControlSCTM         = Net(Ts, T, (1:nRoads)');
+%%
+% Assign the incidence matrix to the object
+netNoControlSCTM.iM      = incMat;
+%%
+% Assign the adjacency matrix to the object
+netNoControlSCTM.turnings= adjMat;
+%%
+% Set parameters to the network 
+netNoControlSCTM.initialize(Li, maxSpeed, congSpeed, maxDensity, ... 
+                        maxFlow, rhoC, type)
+netNoControlSCTM
+%% Traffic lights setup
+%
+% Setup the flag so the network is run under manual control 
+netNoControlSCTM.isControlled= 0;
+setTrafficLightsManhattanMultipleIO(netNoControlSCTM,nCols); 
+netNoControlSCTM.lights(1)
+%%
+% Let's check the complementary traffic lights. For a particular
+% intersection:
+upstream                = find(incMat(:,1)==1);
+figure(1),clf
+stem(1:T,netNoControlSCTM.lights(upstream(1)).values,'b'), hold on, 
+stem(1:T,netNoControlSCTM.lights(upstream(2)).values,'r'), grid on,
+lgn                     = legend('$u_1$','$u_5$');
+set(lgn,'interpreter','latex');
+ylim([0,2])
+xlabel('Discrete time [t]','interpreter','latex')
+ylabel('$u_i(t)$','interpreter','latex')
+title('Traffic lights intersection $1$','interpreter','latex')
+%% Simulation parameters
+%
+% Setup for simulation parameters: 
+nCycles                 = 50;
+time                    = [1 T*nCycles]; % number of iterations
+Sout                    = maxFlow*ones(nRoads,time(end));
+%
+burstValue              = 0.4; 
+t0                      = time(end)*0.1; 
+tf                      = time(end)*0.8;
+Din                     = inputDemandManhattan(netNoControlSCTM, burstValue,...
+                                               t0, tf, time(end));
+% 
+%% 
+% Verify the dynamic profile of demands for the system:
+%
+figure(2),clf
+imagesc(1:time,1:nRoads,Din)
+xlabel('Samples [k]','interpreter','latex')
+ylabel('Road ID','interpreter','latex')
+title('External Demand $D^{in}$','interpreter','latex')
+colorbar
+%%
+% It can be verified that the external demands are non-zero just for the
+% input roads in the network $\mathcal{R}^{in}$
+netNoControlSCTM.enteringRoads
+%% Simulation  
+%
+% Use the method _simul_ in the object _Net_ to simulate the system.
+%
+[totDensitySCTM,~,...
+ totLightsSCTM,~,~]     = netNoControlSCTM.simul(time,zeros(1,nRoads),Din,Sout);
+%%
+%
+figure(3),clf
+imagesc(time(1):time(end),1:nRoads,totDensitySCTM)
+map                     = retrieve_color_heatmap;
+colormap(flipud(map));
+colormap(jet)
+colorbar
+xlabel('Samples [k]','interpreter','latex')
+ylabel('Road ID','interpreter','latex')
+title('Density  $\frac{veh}{m}$','interpreter','latex')
+
+%% Merge example 
+% 
+% In order to validate we are going to create a merge of two roads as in: 
+%%
+% 
+% <<aimsung.png>>
+% 
+%% 
+% Network setup 
+incMatrixMerge          = [1;1;-1];
+adjMatrixMerge          = [0 0 1;0 0 1;0 0 0];
+nRoadsMerge             = size(incMatrixMerge,1);
+%%
+% Parameters
+Ts                      = 15;               % sampling time
+Tc                      = 90;               % cycle time of traffic lights 
+T                       = Tc/Ts;            % cycle time/ sampling time
+Li                      = 250;              % cell length [m]
+maxSpeed                = 50/3.6;           % free flow speed [m/s]
+maxDensity              = 0.125;            % maximum density [veh/m]
+maxFlow                 = 0.55;             % maximum flow [veh/s]
+rhoC                    = maxFlow/maxSpeed; % critical density
+congSpeed               = abs(maxFlow/(rhoC - maxDensity));   % w
+type                    = 'RoadSignFifoCTM';% model type
+%% 
+% Network inizialization
+netMerge                = Net(Ts, T, (1:nRoadsMerge)');
+%%
+% Assign the incidence matrix to the object
+netMerge.iM             = incMatrixMerge;
+%%
+% Assign the adjacency matrix to the object
+netMerge.turnings       = adjMatrixMerge;
+%%
+% Set parameters to the network 
+netMerge.initialize(Li, maxSpeed, congSpeed, maxDensity, ... 
+                        maxFlow, rhoC, type)
+netMerge
+%%
+netMerge.isControlled       = 0;
+duty                        = 1/3; 
+netMerge.lights(1).values   = [ones(1,1),zeros(1,5)];
+netMerge.lights(2).values   = [zeros(1,4),ones(1,2)];
+netMerge.lights(3).values   = [ones(1,6)];
+%%
+% Setup for simulation parameters: 
+nCycles                     = 50;
+time                        = [1 T*nCycles]; % number of iterations
+SoutMerge                   = maxFlow*ones(nRoadsMerge,time(end));
+DinMerge                    = [];
+DinMerge(1,:)               = 300*ones(1,time(end));
+DinMerge(2,:)               = 700*ones(1,time(end));
+DinMerge(3,:)               = zeros(1,time(end));
+[totDensityMerge,~,...
+ totLightsMerge,~,~]        = netMerge.simul(time,zeros(1,nRoadsMerge),DinMerge,SoutMerge);
+%%
+% Plot the density 
+figure(4),clf
+plot((time(1)-1):time(end),totDensityMerge')
+grid on
+xlabel('Samples [k]','interpreter','latex')
+ylabel('$\rho_i$ veh/km','interpreter','latex')
+lgn                     = legend('$\rho_1$','$\rho_2$','$\rho_3$');
+set(lgn,'interpreter','latex');
+%%
+
+
+
+
+
+
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>

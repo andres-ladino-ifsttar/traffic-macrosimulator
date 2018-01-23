@@ -1,0 +1,587 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>ITS Session 2: Control of large scale Traffic Networks</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-01-23"><meta name="DC.source" content="part_3_control_centralized.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>ITS Session 2: Control of large scale Traffic Networks</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">TTD</a></li><li><a href="#3">Computing Measurements (Open Loop)</a></li><li><a href="#4">Control Centralized</a></li><li><a href="#8">Simulation with Controller</a></li><li><a href="#12">Balancing</a></li><li><a href="#16">Control a Merge</a></li><li><a href="#22">TTD for a Merge</a></li><li><a href="#24">Balance for a Merge</a></li></ul></div><h2>TTD<a name="1"></a></h2><p><i>Total Travel Distance</i> TTD is defined as:</p><p><img vspace="5" hspace="5" src="TTD.png" alt=""> </p><h2>Computing Measurements (Open Loop)<a name="3"></a></h2><p>First let compute and observe the behaviour of the TTD for the network without control:</p><pre class="codeinput">time                    = size(totDensitySCTM,2);
+nRoads                  = size(totDensitySCTM,1);
+TTDNC                   = zeros(1,time);
+f                       = TTDNC;
+<span class="keyword">for</span> i = 1 : time
+    <span class="keyword">for</span> j = 1 : nRoads
+        v        = netNoControlSCTM.roads(j).maxSpeed;
+        w        = netNoControlSCTM.roads(j).congSpeed;
+        rhoMax   = netNoControlSCTM.roads(j).maxDensity;
+        f(i)     = min(totDensitySCTM(j,i)*v,<span class="keyword">...</span>
+                       w*(rhoMax - totDensitySCTM(j,i)));
+        TTDNC(i) = TTDNC(i) + f(i);
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> i&gt;1
+        TTDNC(i) = TTDNC(i) + TTDNC(i-1);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>Control Centralized<a name="4"></a></h2><p>Compute the network parameters for a network that should be controlled, in this case the problem will be applied over a S-CTM network like model. (In general they are the same for the uncontrolled network except from the <tt>isControlled</tt> attribute.</p><pre class="codeinput">nRows                   = 4;
+nCols                   = 4;
+[incMat, adjMat]        = buildManhattanMultipleInOut(nRows,nCols);
+nRoads                  = size(incMat,1);
+Ts                      = 15;               <span class="comment">% sampling time</span>
+Tc                      = 90;               <span class="comment">% cycle time of traffic lights</span>
+T                       = Tc/Ts;            <span class="comment">% cycle time/ sampling time</span>
+Li                      = 500;              <span class="comment">% cell length [m]</span>
+maxSpeed                = 50/3.6;           <span class="comment">% free flow speed [m/s]</span>
+maxDensity              = 0.125;            <span class="comment">% maximum density [veh/m]</span>
+maxFlow                 = 0.55;             <span class="comment">% maximum flow [veh/s]</span>
+rhoC                    = maxFlow/maxSpeed; <span class="comment">% critical density</span>
+congSpeed               = abs(maxFlow/(rhoC - maxDensity));   <span class="comment">% w</span>
+type                    = <span class="string">'RoadSignFifoCTM'</span>;<span class="comment">% model type</span>
+netControlSCTM          = Net(Ts, T, (1:nRoads)');
+netControlSCTM.iM       = incMat;
+netControlSCTM.turnings = adjMat;
+</pre><p>Set parameters to the network</p><pre class="codeinput">netControlSCTM.initialize(Li, maxSpeed, congSpeed, maxDensity, <span class="keyword">...</span>
+                        maxFlow, rhoC, type)
+</pre><p>Setup the flag so the network is run under regulated control control. Lights are going to be setup since it is just inside the <tt>Net</tt> model that the automatic control signal is selected.</p><pre class="codeinput">netControlSCTM.isControlled= 1;
+setTrafficLightsManhattanMultipleIO(netControlSCTM,nCols);
+<span class="comment">%</span>
+<span class="comment">% _Note: This can be verified in the simul method in the_ |Net| _class_</span>
+</pre><p>Setup for simulation parameters:</p><pre class="codeinput">nCycles                 = 50;
+time                    = [1 T*nCycles]; <span class="comment">% number of iterations</span>
+Sout                    = maxFlow*ones(nRoads,time(end));
+<span class="comment">%</span>
+burstValue              = 0.4;
+t0                      = time(end)*0.1;
+tf                      = time(end)*0.8;
+Din                     = inputDemandManhattan(netNoControlSCTM, burstValue,<span class="keyword">...</span>
+                                               t0, tf, time(end));
+</pre><h2>Simulation with Controller<a name="8"></a></h2><p>Use the method <i>simul</i> in the object <i>Net</i> to simulate the system.</p><pre class="codeinput">[totDensityControlSCTM,~,<span class="keyword">...</span>
+ totLightsControlSCTM,~,~]  = netControlSCTM.simul(time,zeros(1,nRoads),Din,Sout);
+</pre><pre class="codeinput">figure(1),clf
+imagesc(time(1):time(end),1:nRoads,totDensityControlSCTM)
+map                         = retrieve_color_heatmap;
+colormap(flipud(map));
+colormap(jet)
+colorbar
+xlabel(<span class="string">'Samples [k]'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+ylabel(<span class="string">'Road ID'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+title(<span class="string">'Density  $\frac{veh}{m}$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+</pre><img vspace="5" hspace="5" src="part_3_control_centralized_01.png" alt=""> <p>Compute indexes in the case of the controlled situation.</p><pre class="codeinput">time                        = size(totDensityControlSCTM,2);
+nRoads                      = size(totDensityControlSCTM,1);
+TTDC                        = zeros(1,time);
+f                           = TTDC;
+<span class="keyword">for</span> i = 1 : time
+    <span class="keyword">for</span> j = 1 : nRoads
+        v                   = netControlSCTM.roads(j).maxSpeed;
+        w                   = netControlSCTM.roads(j).congSpeed;
+        rhoMax              = netControlSCTM.roads(j).maxDensity;
+        f(i)                = min(totDensityControlSCTM(j,i)*v,<span class="keyword">...</span>
+                               w*(rhoMax - totDensityControlSCTM(j,i)));
+        TTDC(i)             = TTDC(i) + f(i);
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> i&gt;1
+        TTDC(i)             = TTDC(i) + TTDC(i-1);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><pre class="codeinput">figure(2),clf
+plot(1:time(end),TTDC,1:time(end),TTDNC),grid
+xlabel(<span class="string">'Samples [k]'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+ylabel(<span class="string">'TTD $veh-m$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+title(<span class="string">'$TTD$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+lgn = legend(<span class="string">'TTD with feedback'</span>, <span class="string">'TTD'</span>,<span class="string">'Location'</span>,<span class="string">'NorthWest'</span>);
+set(lgn,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>);
+</pre><img vspace="5" hspace="5" src="part_3_control_centralized_02.png" alt=""> <h2>Balancing<a name="12"></a></h2><p>Balancing is an indicator given by:</p><p><img vspace="5" hspace="5" src="Balancing.png" alt=""> </p><p>We compute the balance for both cases and we compare the degree of improvement.</p><pre class="codeinput">BAL = zeros(1,time(end));
+BALNC = zeros(1,time(end));
+Lap = zeros(nRoads);
+<span class="keyword">for</span> i = 1 : size(Lap,1)
+    <span class="keyword">for</span> j = 1 : size(Lap,1)
+        <span class="comment">%disp(i)</span>
+        <span class="comment">%disp(j)</span>
+        <span class="keyword">if</span> i==j
+            Lap(i,j)        = length(netControlSCTM.neighborsIn(i))+<span class="keyword">...</span>
+                              length(netControlSCTM.neighborsOut(i));
+        <span class="keyword">elseif</span> any([netControlSCTM.neighborsIn(i) <span class="keyword">...</span>
+                    netControlSCTM.neighborsOut(i)]==j)
+            Lap(i,j)        = -1;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">for</span> i = 1 : time(end)
+    BAL(i)                  = totDensityControlSCTM(:,i)'*Lap*<span class="keyword">...</span>
+                              totDensityControlSCTM(:,i);
+    BALNC(i)                = totDensitySCTM(:,i)'*Lap*<span class="keyword">...</span>
+                              totDensitySCTM(:,i);
+<span class="keyword">end</span>
+</pre><p>The performance in time is visualized as</p><pre class="codeinput">figure(3); clf; hold <span class="string">on</span>;
+plot(1:time(end), cumsum(BAL), <span class="string">'b'</span>);grid <span class="string">on</span>
+plot(1:time(end), cumsum(BALNC), <span class="string">'r'</span>);
+lgn = legend(<span class="string">'Balancing with feedback'</span>, <span class="string">'Balancing'</span>,<span class="string">'Location'</span>,<span class="string">'NorthWest'</span>);
+xlabel(<span class="string">'Samples [k]'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+ylabel(<span class="string">'$Bal$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+title(<span class="string">'Balancing'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+</pre><img vspace="5" hspace="5" src="part_3_control_centralized_03.png" alt=""> <h2>Control a Merge<a name="16"></a></h2><p>Let consider the merge example as before:</p><p><img vspace="5" hspace="5" src="aimsung.png" alt=""> </p><p>Network setup</p><pre class="codeinput">incMatrixMerge              = [1;1;-1];
+adjMatrixMerge              = [0 0 1;0 0 1;0 0 0];
+nRoadsMerge                 = size(incMatrixMerge,1);
+Ts                          = 15;
+Tc                          = 90;
+T                           = Tc/Ts;
+Li                          = 250;
+maxSpeed                    = 50/3.6;
+maxDensity                  = 0.125;
+maxFlow                     = 0.55;
+rhoC                        = maxFlow/maxSpeed;
+congSpeed                   = abs(maxFlow/(rhoC - maxDensity));
+type                        = <span class="string">'RoadSignFifoCTM'</span>;
+netMergeControl             = Net(Ts, T, (1:nRoadsMerge)');
+netMergeControl.iM          = incMatrixMerge;
+netMergeControl.turnings    = adjMatrixMerge;
+netMergeControl.initialize(Li, maxSpeed, congSpeed, maxDensity, <span class="keyword">...</span>
+                        maxFlow, rhoC, type)
+</pre><p>Setting up the flag for control</p><pre class="codeinput">netMergeControl.isControlled       = 1;
+duty                               = 1/3;
+netMergeControl.lights(1).values   = [ones(6,1)];
+netMergeControl.lights(2).values   = [ones(6,1)];
+netMergeControl.lights(3).values   = [ones(6,1)];
+</pre><p>Setup for simulation parameters:</p><pre class="codeinput">nCycles                     = 50;
+time                        = [1 T*nCycles];
+SoutMerge                   = maxFlow*ones(nRoadsMerge,time(end));
+DinMerge(1,:)               = 300*ones(1,time(end));
+DinMerge(2,:)               = 700*ones(1,time(end));
+DinMerge(3,:)               = zeros(1,time(end));
+[totDensityMergeControl,~,<span class="keyword">...</span>
+ totLightsMergeControl,~,~] = netMergeControl.simul(time,<span class="keyword">...</span>
+                              zeros(1,nRoadsMerge),DinMerge,SoutMerge);
+</pre><p>In order to check the performance we can verify the effect over the value</p><pre class="codeinput">figure(4),clf
+plot((time(1)-1):time(end),totDensityMergeControl')
+grid <span class="string">on</span>
+xlabel(<span class="string">'Samples [k]'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+ylabel(<span class="string">'$\rho_i$ veh/km'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+lgn                     = legend(<span class="string">'$\rho_1$'</span>,<span class="string">'$\rho_2$'</span>,<span class="string">'$\rho_3$'</span>);
+set(lgn,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>);
+</pre><img vspace="5" hspace="5" src="part_3_control_centralized_04.png" alt=""> <h2>TTD for a Merge<a name="22"></a></h2><pre class="codeinput">time                        = size(totDensityMergeControl,2);
+nRoads                      = size(totDensityMergeControl,1);
+TTDCMerge                   = zeros(1,time);
+TTDNCMerge                  = TTDCMerge;
+f                           = TTDCMerge;
+<span class="keyword">for</span> i = 1 : time
+    <span class="keyword">for</span> j = 1 : nRoads
+        v                   = netMergeControl.roads(j).maxSpeed;
+        w                   = netMergeControl.roads(j).congSpeed;
+        rhoMax              = netMergeControl.roads(j).maxDensity;
+
+        <span class="comment">% Controlled</span>
+        f(i)                = min(totDensityMergeControl(j,i)*v,<span class="keyword">...</span>
+                               w*(rhoMax - totDensityMergeControl(j,i)));
+        TTDCMerge(i)        = TTDCMerge(i) + f(i);
+
+        <span class="comment">% Uncontrolled</span>
+        f(i)                = min(totDensityMerge(j,i)*v,<span class="keyword">...</span>
+                               w*(rhoMax - totDensityMerge(j,i)));
+        TTDNCMerge(i)       = TTDNCMerge(i) + f(i);
+
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> i&gt;1
+        TTDCMerge(i)        = TTDCMerge(i) + TTDCMerge(i-1);
+        TTDNCMerge(i)       = TTDNCMerge(i) + TTDNCMerge(i-1);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p>Visualized as:</p><pre class="codeinput">figure(5),clf
+plot(1:time(end),TTDCMerge,1:time(end),TTDNCMerge),grid
+xlabel(<span class="string">'Samples [k]'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+ylabel(<span class="string">'TTD $veh-m$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+title(<span class="string">'$TTD$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+lgn = legend(<span class="string">'TTD with feedback'</span>, <span class="string">'TTD'</span>,<span class="string">'Location'</span>,<span class="string">'NorthWest'</span>);
+set(lgn,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>);
+</pre><img vspace="5" hspace="5" src="part_3_control_centralized_05.png" alt=""> <h2>Balance for a Merge<a name="24"></a></h2><p>We compute the balance for both cases and we compare the degree of improvement.</p><pre class="codeinput">BALMerge                    = zeros(1,time(end));
+BALNCMerge                  = zeros(1,time(end));
+Lap                         = zeros(nRoads);
+<span class="keyword">for</span> i = 1 : size(Lap,1)
+    <span class="keyword">for</span> j = 1 : size(Lap,1)
+        <span class="comment">%disp(i)</span>
+        <span class="comment">%disp(j)</span>
+        <span class="keyword">if</span> i==j
+            Lap(i,j)        = length(netMergeControl.neighborsIn(i))+<span class="keyword">...</span>
+                              length(netMergeControl.neighborsOut(i));
+        <span class="keyword">elseif</span> any([netMergeControl.neighborsIn(i) <span class="keyword">...</span>
+                    netMergeControl.neighborsOut(i)]==j)
+            Lap(i,j)        = -1;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">for</span> i = 1 : time(end)
+    BALMerge(i)             = totDensityMergeControl(:,i)'*Lap*<span class="keyword">...</span>
+                              totDensityMergeControl(:,i);
+    BALNCMerge(i)           = totDensityMerge(:,i)'*Lap*<span class="keyword">...</span>
+                              totDensityMerge(:,i);
+<span class="keyword">end</span>
+</pre><p>The performance in time is visualized as</p><pre class="codeinput">figure(6); clf; hold <span class="string">on</span>;
+plot(1:time(end), BALMerge, <span class="string">'b'</span>);grid <span class="string">on</span>
+plot(1:time(end), BALNCMerge, <span class="string">'r'</span>);
+lgn = legend(<span class="string">'Balancing with feedback'</span>, <span class="string">'Balancing'</span>,<span class="string">'Location'</span>,<span class="string">'NorthWest'</span>);
+xlabel(<span class="string">'Samples [k]'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+ylabel(<span class="string">'$Bal$'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>)
+</pre><img vspace="5" hspace="5" src="part_3_control_centralized_06.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% ITS Session 2: Control of large scale Traffic Networks 
+%
+%% TTD
+% 
+% _Total Travel Distance_ TTD is defined as:
+%%
+% 
+% <<TTD.png>>
+% 
+%% Computing Measurements (Open Loop) 
+%
+% First let compute and observe the behaviour of the TTD for the network
+% without control:
+time                    = size(totDensitySCTM,2);
+nRoads                  = size(totDensitySCTM,1);
+TTDNC                   = zeros(1,time);
+f                       = TTDNC;
+for i = 1 : time    
+    for j = 1 : nRoads
+        v        = netNoControlSCTM.roads(j).maxSpeed;
+        w        = netNoControlSCTM.roads(j).congSpeed;
+        rhoMax   = netNoControlSCTM.roads(j).maxDensity;
+        f(i)     = min(totDensitySCTM(j,i)*v,...
+                       w*(rhoMax - totDensitySCTM(j,i)));
+        TTDNC(i) = TTDNC(i) + f(i);      
+    end
+    
+    if i>1
+        TTDNC(i) = TTDNC(i) + TTDNC(i-1);
+    end
+end
+%% Control Centralized
+%
+% Compute the network parameters for a network that should be controlled,
+% in this case the problem will be applied over a S-CTM network like model.
+% (In general they are the same for the uncontrolled network except from
+% the |isControlled| attribute.
+nRows                   = 4; 
+nCols                   = 4;
+[incMat, adjMat]        = buildManhattanMultipleInOut(nRows,nCols);
+nRoads                  = size(incMat,1);
+Ts                      = 15;               % sampling time
+Tc                      = 90;               % cycle time of traffic lights 
+T                       = Tc/Ts;            % cycle time/ sampling time
+Li                      = 500;              % cell length [m]
+maxSpeed                = 50/3.6;           % free flow speed [m/s]
+maxDensity              = 0.125;            % maximum density [veh/m]
+maxFlow                 = 0.55;             % maximum flow [veh/s]
+rhoC                    = maxFlow/maxSpeed; % critical density
+congSpeed               = abs(maxFlow/(rhoC - maxDensity));   % w
+type                    = 'RoadSignFifoCTM';% model type
+netControlSCTM          = Net(Ts, T, (1:nRoads)');
+netControlSCTM.iM       = incMat;
+netControlSCTM.turnings = adjMat;
+%%
+% Set parameters to the network 
+netControlSCTM.initialize(Li, maxSpeed, congSpeed, maxDensity, ... 
+                        maxFlow, rhoC, type)
+%%
+% Setup the flag so the network is run under regulated control control.
+% Lights are going to be setup since it is just inside the |Net| model that
+% the automatic control signal is selected.
+netControlSCTM.isControlled= 1;
+setTrafficLightsManhattanMultipleIO(netControlSCTM,nCols); 
+%
+% _Note: This can be verified in the simul method in the_ |Net| _class_
+%%
+% Setup for simulation parameters: 
+nCycles                 = 50;
+time                    = [1 T*nCycles]; % number of iterations
+Sout                    = maxFlow*ones(nRoads,time(end));
+%
+burstValue              = 0.4; 
+t0                      = time(end)*0.1; 
+tf                      = time(end)*0.8;
+Din                     = inputDemandManhattan(netNoControlSCTM, burstValue,...
+                                               t0, tf, time(end));                                           
+%% Simulation with Controller
+%
+% Use the method _simul_ in the object _Net_ to simulate the system.
+%
+[totDensityControlSCTM,~,...
+ totLightsControlSCTM,~,~]  = netControlSCTM.simul(time,zeros(1,nRoads),Din,Sout);
+%%
+%
+figure(1),clf
+imagesc(time(1):time(end),1:nRoads,totDensityControlSCTM)
+map                         = retrieve_color_heatmap;
+colormap(flipud(map));
+colormap(jet)
+colorbar
+xlabel('Samples [k]','interpreter','latex')
+ylabel('Road ID','interpreter','latex')
+title('Density  $\frac{veh}{m}$','interpreter','latex')
+%%
+% Compute indexes in the case of the controlled situation.
+time                        = size(totDensityControlSCTM,2);
+nRoads                      = size(totDensityControlSCTM,1);
+TTDC                        = zeros(1,time);
+f                           = TTDC;
+for i = 1 : time    
+    for j = 1 : nRoads
+        v                   = netControlSCTM.roads(j).maxSpeed;
+        w                   = netControlSCTM.roads(j).congSpeed;
+        rhoMax              = netControlSCTM.roads(j).maxDensity;
+        f(i)                = min(totDensityControlSCTM(j,i)*v,...
+                               w*(rhoMax - totDensityControlSCTM(j,i)));
+        TTDC(i)             = TTDC(i) + f(i);      
+    end
+    
+    if i>1
+        TTDC(i)             = TTDC(i) + TTDC(i-1);
+    end
+end
+%%
+%
+figure(2),clf
+plot(1:time(end),TTDC,1:time(end),TTDNC),grid
+xlabel('Samples [k]','interpreter','latex')
+ylabel('TTD $veh-m$','interpreter','latex')
+title('$TTD$','interpreter','latex')
+lgn = legend('TTD with feedback', 'TTD','Location','NorthWest');
+set(lgn,'interpreter','latex');
+%% Balancing 
+%
+% Balancing is an indicator given by:
+%%
+% 
+% <<Balancing.png>>
+% 
+%% 
+% We compute the balance for both cases and we compare the degree of
+% improvement.
+BAL = zeros(1,time(end));
+BALNC = zeros(1,time(end));
+Lap = zeros(nRoads);
+for i = 1 : size(Lap,1)
+    for j = 1 : size(Lap,1)
+        %disp(i)
+        %disp(j)
+        if i==j
+            Lap(i,j)        = length(netControlSCTM.neighborsIn(i))+...
+                              length(netControlSCTM.neighborsOut(i));
+        elseif any([netControlSCTM.neighborsIn(i) ...
+                    netControlSCTM.neighborsOut(i)]==j)
+            Lap(i,j)        = -1;
+        end
+    end
+end
+
+for i = 1 : time(end)
+    BAL(i)                  = totDensityControlSCTM(:,i)'*Lap*...
+                              totDensityControlSCTM(:,i);
+    BALNC(i)                = totDensitySCTM(:,i)'*Lap*...
+                              totDensitySCTM(:,i);
+end
+%%
+% The performance in time is visualized as 
+figure(3); clf; hold on;
+plot(1:time(end), cumsum(BAL), 'b');grid on
+plot(1:time(end), cumsum(BALNC), 'r');
+lgn = legend('Balancing with feedback', 'Balancing','Location','NorthWest');
+xlabel('Samples [k]','interpreter','latex')
+ylabel('$Bal$','interpreter','latex')
+title('Balancing','interpreter','latex')
+%% Control a Merge 
+%
+% Let consider the merge example as before: 
+%%
+% 
+% <<aimsung.png>>
+% 
+%% 
+% Network setup 
+incMatrixMerge              = [1;1;-1];
+adjMatrixMerge              = [0 0 1;0 0 1;0 0 0];
+nRoadsMerge                 = size(incMatrixMerge,1);
+Ts                          = 15;               
+Tc                          = 90;               
+T                           = Tc/Ts;            
+Li                          = 250;              
+maxSpeed                    = 50/3.6;          
+maxDensity                  = 0.125;            
+maxFlow                     = 0.55;             
+rhoC                        = maxFlow/maxSpeed; 
+congSpeed                   = abs(maxFlow/(rhoC - maxDensity));   
+type                        = 'RoadSignFifoCTM';
+netMergeControl             = Net(Ts, T, (1:nRoadsMerge)');
+netMergeControl.iM          = incMatrixMerge;
+netMergeControl.turnings    = adjMatrixMerge;
+netMergeControl.initialize(Li, maxSpeed, congSpeed, maxDensity, ... 
+                        maxFlow, rhoC, type)
+%%
+% Setting up the flag for control
+netMergeControl.isControlled       = 1;
+duty                               = 1/3; 
+netMergeControl.lights(1).values   = [ones(6,1)];
+netMergeControl.lights(2).values   = [ones(6,1)];
+netMergeControl.lights(3).values   = [ones(6,1)];
+%%
+% Setup for simulation parameters: 
+nCycles                     = 50;
+time                        = [1 T*nCycles]; 
+SoutMerge                   = maxFlow*ones(nRoadsMerge,time(end));
+DinMerge(1,:)               = 300*ones(1,time(end));
+DinMerge(2,:)               = 700*ones(1,time(end));
+DinMerge(3,:)               = zeros(1,time(end));
+[totDensityMergeControl,~,...
+ totLightsMergeControl,~,~] = netMergeControl.simul(time,...
+                              zeros(1,nRoadsMerge),DinMerge,SoutMerge);
+%%
+% In order to check the performance we can verify the effect over the value 
+figure(4),clf
+plot((time(1)-1):time(end),totDensityMergeControl')
+grid on
+xlabel('Samples [k]','interpreter','latex')
+ylabel('$\rho_i$ veh/km','interpreter','latex')
+lgn                     = legend('$\rho_1$','$\rho_2$','$\rho_3$');
+set(lgn,'interpreter','latex');
+%% TTD for a Merge
+time                        = size(totDensityMergeControl,2);
+nRoads                      = size(totDensityMergeControl,1);
+TTDCMerge                   = zeros(1,time);
+TTDNCMerge                  = TTDCMerge;
+f                           = TTDCMerge;
+for i = 1 : time    
+    for j = 1 : nRoads
+        v                   = netMergeControl.roads(j).maxSpeed;
+        w                   = netMergeControl.roads(j).congSpeed;
+        rhoMax              = netMergeControl.roads(j).maxDensity;
+
+        % Controlled
+        f(i)                = min(totDensityMergeControl(j,i)*v,...
+                               w*(rhoMax - totDensityMergeControl(j,i)));
+        TTDCMerge(i)        = TTDCMerge(i) + f(i);      
+        
+        % Uncontrolled
+        f(i)                = min(totDensityMerge(j,i)*v,...
+                               w*(rhoMax - totDensityMerge(j,i)));
+        TTDNCMerge(i)       = TTDNCMerge(i) + f(i);    
+        
+    end
+    
+    if i>1
+        TTDCMerge(i)        = TTDCMerge(i) + TTDCMerge(i-1);
+        TTDNCMerge(i)       = TTDNCMerge(i) + TTDNCMerge(i-1);  
+    end
+end
+%%
+% Visualized as:
+figure(5),clf
+plot(1:time(end),TTDCMerge,1:time(end),TTDNCMerge),grid
+xlabel('Samples [k]','interpreter','latex')
+ylabel('TTD $veh-m$','interpreter','latex')
+title('$TTD$','interpreter','latex')
+lgn = legend('TTD with feedback', 'TTD','Location','NorthWest');
+set(lgn,'interpreter','latex');
+
+%% Balance for a Merge
+% We compute the balance for both cases and we compare the degree of
+% improvement.
+BALMerge                    = zeros(1,time(end));
+BALNCMerge                  = zeros(1,time(end));
+Lap                         = zeros(nRoads);
+for i = 1 : size(Lap,1)
+    for j = 1 : size(Lap,1)
+        %disp(i)
+        %disp(j)
+        if i==j
+            Lap(i,j)        = length(netMergeControl.neighborsIn(i))+...
+                              length(netMergeControl.neighborsOut(i));
+        elseif any([netMergeControl.neighborsIn(i) ...
+                    netMergeControl.neighborsOut(i)]==j)
+            Lap(i,j)        = -1;
+        end
+    end
+end
+
+for i = 1 : time(end)
+    BALMerge(i)             = totDensityMergeControl(:,i)'*Lap*...
+                              totDensityMergeControl(:,i);
+    BALNCMerge(i)           = totDensityMerge(:,i)'*Lap*...
+                              totDensityMerge(:,i);
+end
+%%
+% The performance in time is visualized as 
+figure(6); clf; hold on;
+plot(1:time(end), BALMerge, 'b');grid on
+plot(1:time(end), BALNCMerge, 'r');
+lgn = legend('Balancing with feedback', 'Balancing','Location','NorthWest');
+xlabel('Samples [k]','interpreter','latex')
+ylabel('$Bal$','interpreter','latex')
+%% 
+
+
+
+##### SOURCE END #####
+--></body></html>
