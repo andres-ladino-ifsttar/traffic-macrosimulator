@@ -15,11 +15,13 @@
 % 1. Inside the matlab folder _MATLAB_ create a folder named _YalmipToolbox_
 % 2. Execute the installation by 
 %
-cd YalmipToolbox
+mkdir yalmip
+cd yalmip
 urlwrite('https://github.com/yalmip/yalmip/archive/master.zip','yalmip.zip');
 unzip('yalmip.zip','yalmip')
 addpath(genpath([pwd filesep 'yalmip']));
 savepath
+cd .. 
 %%
 % 3. Check installation procedure by executing the following line and
 % verify the answer message provided by YALMIP:
@@ -52,7 +54,27 @@ yalmiptest
 % |         Sum-of-squares|    Correct|        Successfully solved (SeDuMi-1.3)|
 % |           Bilinear SDP|        N/A|                      No suitable solver|
 % ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++|
+%% Issues 
+%
+% Regularly when issues are found it is required to install a solver. Check
+% for a list of full supported solvers at 
+% <https://yalmip.github.io/allsolvers/ Yalmip Solvers>. In those cases
+% install the solver as follows 
 
+mkdir sedumi
+urlwrite('https://github.com/sqlp/sedumi/archive/master.zip','sedumi.zip');
+unzip('sedumi.zip','sedumi')
+addpath(genpath([pwd filesep 'sedumi']));
+savepath
+cd .. 
+%% 
+% Or 
+mkdir sdpt3
+urlwrite('https://github.com/sqlp/sdpt3/archive/master.zip','sdpt3.zip');
+unzip('sdpt3.zip','sdpt3')
+addpath(genpath([pwd filesep 'sdpt3']));
+savepath
+cd ..
 %% 1.2 Structure of simulation files
 %
 % Code for this demo can be obtained at:
