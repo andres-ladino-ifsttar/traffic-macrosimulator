@@ -1,0 +1,565 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Single example on how to obtain the control action</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-02-23"><meta name="DC.source" content="Control_single_loop_example.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Single example on how to obtain the control action</h1><!--introduction--><p>This file solves the optimization problem proposed in <a href="part_3_control_centralized.html">Control Centralized Algorithm</a>. The solution is found via <a href="http://yalmip.github.io/tutorial/basics/">YALMIP</a></p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Preparing everything beforehand</a></li><li><a href="#2">Parameter setup</a></li><li><a href="#6">Capture a set of measurements</a></li><li><a href="#7">Compute the control</a></li><li><a href="#10">Examining the results</a></li></ul></div><h2>Preparing everything beforehand<a name="1"></a></h2><p>Before starting be sure to have the correct setup. For that,</p><div><ul><li>Follow instructions in <a href="part_0_setup.html">Setup</a>.</li></ul></div><p>Add the folder of functions first</p><pre class="codeinput">pathEnabler(<span class="string">'activate'</span>)
+</pre><h2>Parameter setup<a name="2"></a></h2><p>Setting up the parameters. The example is developed over the <b>Manhattan</b> case. Please adapt the parameters to the corresponding network you are analizing.</p><pre class="codeinput">nRows                   = 4;
+nCols                   = 4;
+[incMat, adjMat]        = buildManhattanMultipleInOut(nRows,nCols);
+nRoads                  = size(incMat,1);
+Ts                      = 15;               <span class="comment">% sampling time</span>
+Tc                      = 90;               <span class="comment">% cycle time of traffic lights</span>
+T                       = Tc/Ts;            <span class="comment">% cycle time/ sampling time</span>
+Li                      = 500;              <span class="comment">% cell length [m]</span>
+maxSpeed                = 50/3.6;           <span class="comment">% free flow speed [m/s]</span>
+maxDensity              = 0.125;            <span class="comment">% maximum density [veh/m]</span>
+maxFlow                 = 0.55;             <span class="comment">% maximum flow [veh/s]</span>
+rhoC                    = maxFlow/maxSpeed; <span class="comment">% critical density</span>
+congSpeed               = abs(maxFlow/(rhoC - maxDensity));   <span class="comment">% w</span>
+type                    = <span class="string">'RoadSignFifoCTM'</span>;<span class="comment">% model type</span>
+netControlSCTM          = Net(Ts, T, (1:nRoads)');
+netControlSCTM.iM       = incMat;
+netControlSCTM.turnings = adjMat;
+</pre><p>Set parameters to the network</p><pre class="codeinput">netControlSCTM.initialize(Li, maxSpeed, congSpeed, maxDensity, <span class="keyword">...</span>
+                        maxFlow, rhoC, type)
+</pre><p>Setup the flag so the network is run under regulated control control. Lights are going to be setup since it is just inside the <tt>Net</tt> model that the automatic control signal is selected.</p><pre class="codeinput">netControlSCTM.isControlled= 1;
+setTrafficLightsManhattanMultipleIO(netControlSCTM,nCols);
+<span class="comment">%</span>
+<span class="comment">% _Note: This can be verified in the simul method in the_ |Net| _class_</span>
+</pre><p>Setup for simulation parameters:</p><pre class="codeinput">nCycles                 = 50;
+time                    = [1 T*nCycles]; <span class="comment">% number of iterations</span>
+Sout                    = maxFlow*ones(nRoads,time(end));
+<span class="comment">%</span>
+burstValue              = 0.4;
+t0                      = time(end)*0.1;
+tf                      = time(end)*0.8;
+Din                     = inputDemandManhattan(netControlSCTM, burstValue,<span class="keyword">...</span>
+                                               t0, tf, time(end));
+</pre><h2>Capture a set of measurements<a name="6"></a></h2><p>This input should come from the simulator, in this case we emulate a measurement.</p><pre class="codeinput">y_density   = rand(nRoads,1)*netControlSCTM.roads(1).maxDensity; <span class="comment">% To recover from  the real system/simulator</span>
+</pre><h2>Compute the control<a name="7"></a></h2><p>Compute the control action through the function <i>CentralizedMPC</i></p><p>Let suppose at time instant <img src="Control_single_loop_example_eq15636846968047188835.png" alt="$k$"> (beguining of the cycle)</p><pre class="codeinput">k           = 25*netControlSCTM.period
+</pre><pre class="codeoutput">
+k =
+
+   150
+
+</pre><p>Retrieve the external demand/supply for during the period.</p><pre class="codeinput">DinCycle    = Din(:,k:k+netControlSCTM.period-1);
+SoutCycle   = Sout(:,k:k+netControlSCTM.period-1);
+</pre><pre class="codeinput">[LightsValues, xPred, fOut, fIn, TTD_val, duty, objective] = <span class="keyword">...</span>
+         CentralizedMPC(netControlSCTM, DinCycle, SoutCycle,y_density)
+</pre><pre class="codeoutput">
+LightsValues =
+
+     1     1     1     1     1     0
+     1     1     1     1     1     1
+     1     1     1     1     1     0
+     1     1     1     1     1     1
+     0     0     0     0     0     1
+     1     1     1     1     1     0
+     0     0     0     0     0     1
+     1     0     0     0     0     0
+     1     1     1     1     1     1
+     1     0     0     0     0     0
+     0     0     0     0     0     1
+     1     0     0     0     0     0
+     0     1     1     1     1     1
+     1     1     1     1     1     1
+     0     1     1     1     1     1
+     1     0     0     0     0     0
+     0     1     1     1     1     1
+     1     1     1     1     1     0
+     1     0     0     0     0     0
+     0     1     1     1     1     1
+     1     1     1     1     0     0
+     0     0     0     0     0     1
+     0     1     1     1     1     1
+     1     1     0     0     0     0
+     0     0     0     0     1     1
+     1     0     0     0     0     0
+     1     1     1     1     1     1
+     1     1     1     1     1     0
+     0     0     1     1     1     1
+     1     1     1     1     1     0
+     0     1     1     1     1     1
+     1     1     1     1     1     1
+     0     0     0     0     0     1
+     1     1     1     1     1     0
+     0     0     0     0     0     1
+     1     1     1     1     1     0
+     1     1     1     1     1     1
+     0     0     0     0     0     1
+     1     1     1     1     1     1
+     0     0     0     0     0     1
+
+
+xPred =
+
+    0.0746
+    0.0743
+    0.0770
+    0.1030
+    0.0370
+    0.0797
+    0.0384
+    0.0193
+    0.0603
+    0.0646
+    0.0662
+    0.0886
+    0.0969
+    0.0375
+    0.0739
+    0.0608
+    0.0945
+    0.1029
+    0.0370
+    0.0700
+    0.0707
+    0.0692
+    0.0970
+    0.0396
+    0.0396
+    0.0216
+    0.1024
+    0.0719
+    0.0549
+    0.0727
+    0.0698
+    0.0705
+    0.0765
+    0.0812
+    0.0740
+    0.1095
+    0.0261
+    0.0247
+    0.0180
+    0.0196
+
+
+fOut =
+
+    0.4950
+    0.5500
+    0.3768
+    0.5500
+    0.0360
+    0.4950
+    0.0410
+    0.0126
+    0.5500
+    0.0550
+    0.0398
+    0.0633
+    0.0611
+    0.5500
+    0.4950
+    0.0419
+    0.4827
+    0.1762
+    0.0439
+    0.4950
+    0.2784
+    0.0285
+    0.4950
+    0.1204
+    0.2072
+    0.0075
+    0.5500
+    0.4950
+    0.3534
+    0.4950
+    0.1246
+    0.5500
+    0.0437
+    0.4950
+    0.0345
+    0.4950
+    0.3796
+    0.0184
+    0.1904
+    0.0110
+
+
+fIn =
+
+    0.2837
+    0.1991
+    0.2932
+    0.0441
+    0.4000
+    0.1967
+    0.3357
+    0.1585
+    0.0296
+    0.3344
+    0.3364
+    0.2593
+    0.0802
+    0.3410
+    0.2005
+    0.3359
+    0.1245
+    0.1345
+    0.2090
+    0.2718
+    0.2101
+    0.0836
+    0.1047
+    0.3371
+    0.2019
+    0.2321
+    0.0484
+    0.2018
+    0.1852
+    0.2535
+    0.1804
+    0.2016
+    0.3282
+    0.1957
+    0.3256
+    0.0051
+    0.3370
+    0.4000
+    0.3338
+    0.4000
+
+
+TTD_val =
+
+    0.3245
+    0.3262
+    0.3094
+    0.1419
+    0.5144
+    0.2917
+    0.5329
+    0.2681
+    0.4167
+    0.3887
+    0.3784
+    0.2343
+    0.1812
+    0.5209
+    0.3290
+    0.4132
+    0.1965
+    0.1426
+    0.5140
+    0.3543
+    0.3495
+    0.3591
+    0.1801
+    0.5500
+    0.5500
+    0.3006
+    0.1453
+    0.3420
+    0.4515
+    0.3370
+    0.3557
+    0.3512
+    0.3122
+    0.2824
+    0.3282
+    0.0997
+    0.3619
+    0.3427
+    0.2502
+    0.2725
+
+
+duty =
+
+    0.9000
+    1.0000
+    0.9000
+    1.0000
+    0.1000
+    0.9000
+    0.1000
+    0.1000
+    1.0000
+    0.1000
+    0.1000
+    0.1224
+    0.9000
+    1.0000
+    0.9000
+    0.1000
+    0.8776
+    0.9000
+    0.1000
+    0.9000
+    0.6232
+    0.1000
+    0.9000
+    0.2618
+    0.3768
+    0.1000
+    1.0000
+    0.9000
+    0.7382
+    0.9000
+    0.9000
+    1.0000
+    0.1000
+    0.9000
+    0.1000
+    0.9000
+    1.0000
+    0.1000
+    1.0000
+    0.1000
+
+
+objective =
+
+    0.0742   13.3007
+
+</pre><h2>Examining the results<a name="10"></a></h2><p>In this case the variable <tt>LightsValues</tt> contains the value to be applied during the next cycle.</p><pre class="codeinput">LightsValues <span class="comment">% Value to apply to each light on the system</span>
+</pre><pre class="codeoutput">
+LightsValues =
+
+     1     1     1     1     1     0
+     1     1     1     1     1     1
+     1     1     1     1     1     0
+     1     1     1     1     1     1
+     0     0     0     0     0     1
+     1     1     1     1     1     0
+     0     0     0     0     0     1
+     1     0     0     0     0     0
+     1     1     1     1     1     1
+     1     0     0     0     0     0
+     0     0     0     0     0     1
+     1     0     0     0     0     0
+     0     1     1     1     1     1
+     1     1     1     1     1     1
+     0     1     1     1     1     1
+     1     0     0     0     0     0
+     0     1     1     1     1     1
+     1     1     1     1     1     0
+     1     0     0     0     0     0
+     0     1     1     1     1     1
+     1     1     1     1     0     0
+     0     0     0     0     0     1
+     0     1     1     1     1     1
+     1     1     0     0     0     0
+     0     0     0     0     1     1
+     1     0     0     0     0     0
+     1     1     1     1     1     1
+     1     1     1     1     1     0
+     0     0     1     1     1     1
+     1     1     1     1     1     0
+     0     1     1     1     1     1
+     1     1     1     1     1     1
+     0     0     0     0     0     1
+     1     1     1     1     1     0
+     0     0     0     0     0     1
+     1     1     1     1     1     0
+     1     1     1     1     1     1
+     0     0     0     0     0     1
+     1     1     1     1     1     1
+     0     0     0     0     0     1
+
+</pre><p>The corresponding duty cycle is stored in <tt>duty</tt></p><pre class="codeinput">duty
+</pre><pre class="codeoutput">
+duty =
+
+    0.9000
+    1.0000
+    0.9000
+    1.0000
+    0.1000
+    0.9000
+    0.1000
+    0.1000
+    1.0000
+    0.1000
+    0.1000
+    0.1224
+    0.9000
+    1.0000
+    0.9000
+    0.1000
+    0.8776
+    0.9000
+    0.1000
+    0.9000
+    0.6232
+    0.1000
+    0.9000
+    0.2618
+    0.3768
+    0.1000
+    1.0000
+    0.9000
+    0.7382
+    0.9000
+    0.9000
+    1.0000
+    0.1000
+    0.9000
+    0.1000
+    0.9000
+    1.0000
+    0.1000
+    1.0000
+    0.1000
+
+</pre><p>Exam <i>help(CentralizedMPC)</i> in order to obtain more informations about other indicators</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Single example on how to obtain the control action
+%
+% This file solves the optimization problem proposed in 
+% <part_3_control_centralized.html Control Centralized Algorithm>. The 
+% solution is found via <http://yalmip.github.io/tutorial/basics/ YALMIP>
+% 
+%% Preparing everything beforehand
+%  
+% Before starting be sure to have the correct setup. For that, 
+% 
+% * Follow instructions in <part_0_setup.html Setup>.
+%
+% Add the folder of functions first 
+pathEnabler('activate')
+%% Parameter setup
+%
+% Setting up the parameters. The example is developed over the *Manhattan*
+% case. Please adapt the parameters to the corresponding network you are analizing. 
+nRows                   = 4; 
+nCols                   = 4;
+[incMat, adjMat]        = buildManhattanMultipleInOut(nRows,nCols);
+nRoads                  = size(incMat,1);
+Ts                      = 15;               % sampling time
+Tc                      = 90;               % cycle time of traffic lights 
+T                       = Tc/Ts;            % cycle time/ sampling time
+Li                      = 500;              % cell length [m]
+maxSpeed                = 50/3.6;           % free flow speed [m/s]
+maxDensity              = 0.125;            % maximum density [veh/m]
+maxFlow                 = 0.55;             % maximum flow [veh/s]
+rhoC                    = maxFlow/maxSpeed; % critical density
+congSpeed               = abs(maxFlow/(rhoC - maxDensity));   % w
+type                    = 'RoadSignFifoCTM';% model type
+netControlSCTM          = Net(Ts, T, (1:nRoads)');
+netControlSCTM.iM       = incMat;
+netControlSCTM.turnings = adjMat;
+%%
+% Set parameters to the network 
+netControlSCTM.initialize(Li, maxSpeed, congSpeed, maxDensity, ... 
+                        maxFlow, rhoC, type)
+%%
+% Setup the flag so the network is run under regulated control control.
+% Lights are going to be setup since it is just inside the |Net| model that
+% the automatic control signal is selected.
+netControlSCTM.isControlled= 1;
+setTrafficLightsManhattanMultipleIO(netControlSCTM,nCols); 
+%
+% _Note: This can be verified in the simul method in the_ |Net| _class_
+%%
+% Setup for simulation parameters: 
+nCycles                 = 50;
+time                    = [1 T*nCycles]; % number of iterations
+Sout                    = maxFlow*ones(nRoads,time(end));
+%
+burstValue              = 0.4; 
+t0                      = time(end)*0.1; 
+tf                      = time(end)*0.8;
+Din                     = inputDemandManhattan(netControlSCTM, burstValue,...
+                                               t0, tf, time(end));      
+%% Capture a set of measurements 
+%
+% This input should come from the simulator, in this case we emulate a
+% measurement. 
+y_density   = rand(nRoads,1)*netControlSCTM.roads(1).maxDensity; % To recover from  the real system/simulator
+%% Compute the control
+% 
+% Compute the control action through the function _CentralizedMPC_
+% 
+% Let suppose at time instant $k$ (beguining of the cycle) 
+k           = 25*netControlSCTM.period
+%%
+% Retrieve the external demand/supply for during the period. 
+DinCycle    = Din(:,k:k+netControlSCTM.period-1);
+SoutCycle   = Sout(:,k:k+netControlSCTM.period-1);
+%% 
+[LightsValues, xPred, fOut, fIn, TTD_val, duty, objective] = ...
+         CentralizedMPC(netControlSCTM, DinCycle, SoutCycle,y_density)
+%% Examining the results  
+% 
+% In this case the variable |LightsValues| contains the value to be applied 
+% during the next cycle. 
+LightsValues % Value to apply to each light on the system
+%%
+% The corresponding duty cycle is stored in |duty|
+duty
+%%
+% Exam _help(CentralizedMPC)_ in order to obtain more informations about
+% other indicators
+
+
+     
+##### SOURCE END #####
+--></body></html>

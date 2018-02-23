@@ -87,5 +87,9 @@
 % The code has been entirely written by Pietro Grandinetti. Adaptation of
 % this tool for the ITS Session has been done by Andres Ladino.
 
-
+%%
+pathEnabler('activate')
+part_1_modeling_sctm
+part_2_modeling_actm
+part_3_control_centralized
 
